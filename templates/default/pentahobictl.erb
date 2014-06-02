@@ -1,0 +1,43 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          start-pentaho stop-pentaho
+# Required-Start:    $local_fs $remote_fs $network $syslog $named $mysql
+# Required-Stop:     $local_fs $remote_fs $network $syslog $named $mysql
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     true
+# Short-Description: Pentaho BI Platform
+### END INIT INFO
+export JAVA_HOME="/usr/java/latest"
+export JRE_HOME="/usr/java/latest/jre"
+export PANTAHO_HOME="/usr/local/pentaho"
+
+start(){
+  echo "start pentaho biserver"
+  cd $PANTAHO_HOME/biserver-ce; ./start-pentaho.sh > /tmp/pentaho.out 2>&1
+  cd $PANTAHO_HOME/administration-console; ./start-pac.sh > /tmp/pentahoadm.out 2>&1 &
+  echo "ok"
+}
+
+stop(){
+  echo "stop pentaho biserver"
+  cd $PANTAHO_HOME/biserver-ce; ./stop-pentaho.sh > /tmp/pentaho.out 2>&1
+  cd $PANTAHO_HOME/administration-console; ./stop-pac.sh > /tmp/pentahoadm.out 2>&1
+  echo "ok"
+}
+
+
+case "$1" in
+start)
+        start
+        ;;
+stop)
+        stop
+        ;;
+*)
+        printf "\nUsage: $0 \n
+                start | stop            : start/stop pentaho bi server\n"
+        ;;
+esac
+exit 0
+
