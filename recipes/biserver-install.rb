@@ -1,7 +1,14 @@
 url = node['pentaho']['biserver']['url']
 download_path = "#{Chef::Config[:file_cache_path]}/#{node['pentaho']['biserver']['binaryname']}"
+platform_family = node['platform_family']
 
 if url != nil
+  # prepare
+  Chef::Log.debug "prepare for pentaho installation"
+  package "unzip" do
+    action :install
+  end
+
   # download
   Chef::Log.debug "download pentaho biserver from sourceforge"
   bash "download" do
@@ -15,7 +22,7 @@ if url != nil
   bash "install pentaho biserver" do
     code <<-EOH
       mkdir /usr/local/pentaho
-      tar zxf #{download_path} -C /usr/local/pentaho
+      unzip #{download_path} -d /usr/local/pentaho
     EOH
     only_if "test ! -d /usr/local/pentaho/biserver-ce"
   end
@@ -52,10 +59,15 @@ if url != nil
   end
   bash "install pentahobi service" do
     cwd Chef::Config[:file_cache_path]
-    code <<-EOH
-      chkconfig --add pentahobi
-    EOH
-    only_if "test `chkconfig --list | grep pentahobi | wc -l` -eq 0"
+
+    case platform_family
+    when 'rhel'
+      code "chkconfig --add pentahobi"
+      only_if "test `chkconfig --list | grep pentahobi | wc -l` -eq 0"
+    when 'debian'
+      code "update-rc.d pentahobi enable"
+      only_if "test `service --status-all | grep pentahobi | wc -l` -eq 0"      
+    end
   end
   
   # start service

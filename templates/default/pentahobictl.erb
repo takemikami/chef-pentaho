@@ -8,21 +8,21 @@
 # X-Interactive:     true
 # Short-Description: Pentaho BI Platform
 ### END INIT INFO
-export JAVA_HOME="/usr/java/latest"
-export JRE_HOME="/usr/java/latest/jre"
-export PANTAHO_HOME="/usr/local/pentaho"
+<% if node['platform_family'] == 'rhel' %>
+  export JAVA_HOME="/usr/java/latest"
+  export JRE_HOME="/usr/java/latest/jre"
+<% end %>
+export PENTAHO_HOME="/usr/local/pentaho"
 
 start(){
   echo "start pentaho biserver"
-  cd $PANTAHO_HOME/biserver-ce; ./start-pentaho.sh > /tmp/pentaho.out 2>&1
-  cd $PANTAHO_HOME/administration-console; ./start-pac.sh > /tmp/pentahoadm.out 2>&1 &
+  cd $PENTAHO_HOME/biserver-ce; ./start-pentaho.sh > /tmp/pentaho.out 2>&1
   echo "ok"
 }
 
 stop(){
   echo "stop pentaho biserver"
-  cd $PANTAHO_HOME/biserver-ce; ./stop-pentaho.sh > /tmp/pentaho.out 2>&1
-  cd $PANTAHO_HOME/administration-console; ./stop-pac.sh > /tmp/pentahoadm.out 2>&1
+  cd $PENTAHO_HOME/biserver-ce; ./stop-pentaho.sh > /tmp/pentaho.out 2>&1
   echo "ok"
 }
 
